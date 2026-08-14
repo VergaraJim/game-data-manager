@@ -7,7 +7,7 @@ export default function DefaultLayout(
 ) {
   return (
     <div className="w-full h-full flex flex-col gap-4 p-4">
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center shrink-0">
         <NavLink
           to="/"
           className="flex flex-row gap-2 justify-center items-center py-2 px-4 bg-neutral-700 rounded-md"
@@ -16,8 +16,8 @@ export default function DefaultLayout(
         </NavLink>
         <h1 className="text-2xl font-bold">{props.title}</h1>
       </div>
-      <div className="w-full h-px bg-neutral-600"></div>
-      {props.children}
+      <div className="w-full h-px bg-neutral-600 shrink-0"></div>
+      <div className="w-full grow overflow-auto">{props.children}</div>
     </div>
   );
 }
