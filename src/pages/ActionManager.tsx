@@ -1,4 +1,5 @@
 import DefaultLayout from "../layouts/base";
+import FileBrowser from "../components/FileBrowser";
 
 export default function ActionManager() {
   return (
@@ -7,10 +8,10 @@ export default function ActionManager() {
         <div className="grow max-w-sm flex flex-col gap-2">
           <p className="font-semibold text-lg">ACTIONS</p>
           <div className="w-full bg-neutral-800 grow rounded-md p-2 overflow-auto">
-            <p>TEST</p>
+            <FileBrowser onSelect={(path) => console.log("Selected:", path)} />
           </div>
         </div>
-        <div className="grow bg-neutral-400">TEST</div>
+        <div className="grow">TEST</div>
       </div>
     </DefaultLayout>
   );
