@@ -1,6 +1,7 @@
 import DefaultLayout from "../layouts/base";
 import FileBrowser from "../components/FileBrowser";
 import ActionTimeline from "../components/ActionTimeline";
+import ManagersBar from "../components/ManagersBar";
 
 export default function ActionManager() {
   return (
@@ -13,6 +14,9 @@ export default function ActionManager() {
           </div>
         </div>
         <div className="grow flex flex-col min-w-0">
+          <div className="flex justify-end">
+            <ManagersBar />
+          </div>
           <ActionEditor />
         </div>
       </div>
