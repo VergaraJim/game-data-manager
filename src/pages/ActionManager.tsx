@@ -1,5 +1,6 @@
 import DefaultLayout from "../layouts/base";
 import FileBrowser from "../components/FileBrowser";
+import ActionTimeline from "../components/ActionTimeline";
 
 export default function ActionManager() {
   return (
@@ -11,8 +12,22 @@ export default function ActionManager() {
             <FileBrowser onSelect={(path) => console.log("Selected:", path)} />
           </div>
         </div>
-        <div className="grow">TEST</div>
+        <div className="grow flex flex-col">
+          <ActionEditor />
+        </div>
       </div>
     </DefaultLayout>
+  );
+}
+
+function ActionEditor() {
+  return (
+    <div className="w-full h-full flex flex-col gap-2">
+      <div className="grow min-h-0"></div>
+      <p className="font-semibold text-lg">TIMELINE</p>
+      <div className="h-60">
+        <ActionTimeline className="w-full h-full" />
+      </div>
+    </div>
   );
 }
