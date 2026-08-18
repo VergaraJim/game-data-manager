@@ -147,11 +147,17 @@ export default function ActionTimeline(props: { className?: string }) {
     elementId: string;
     startX: number;
     originalStart: number;
+    originalDuration: number;
+    mode: "move" | "resize-left" | "resize-right";
   } | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   const handlePointerDown = useCallback(
-    (e: React.PointerEvent, el: TimelineElement) => {
+    (
+      e: React.PointerEvent,
+      el: TimelineElement,
+      mode: "move" | "resize-left" | "resize-right" = "move",
+    ) => {
       e.preventDefault();
       e.stopPropagation();
       setSelectedId(el.id);
@@ -159,6 +165,8 @@ export default function ActionTimeline(props: { className?: string }) {
         elementId: el.id,
         startX: e.clientX,
         originalStart: el.start,
+        originalDuration: el.duration,
+        mode,
       };
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
     },
@@ -168,25 +176,70 @@ export default function ActionTimeline(props: { className?: string }) {
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (!dragRef.current) return;
-      const { elementId, startX, originalStart } = dragRef.current;
+      const { elementId, startX, originalStart, originalDuration, mode } =
+        dragRef.current;
       const dx = e.clientX - startX;
       const dt = dx / pxPerSecond;
-      let newStart = originalStart + dt;
-      if (snap > 0) {
-        newStart = Math.round(newStart / snap) * snap;
-        const decimals = snap.toString().split(".")[1]?.length ?? 0;
-        newStart = parseFloat(newStart.toFixed(decimals + 1));
-      }
+
       const el = elements.find((el) => el.id === elementId);
       if (!el) return;
-      newStart = Math.max(
-        0,
-        Math.min(params.actionDuration - el.duration, newStart),
-      );
 
-      setElements((els) =>
-        els.map((e) => (e.id === elementId ? { ...e, start: newStart } : e)),
-      );
+      if (mode === "move") {
+        let newStart = originalStart + dt;
+        if (snap > 0) {
+          newStart = Math.round(newStart / snap) * snap;
+          const decimals = snap.toString().split(".")[1]?.length ?? 0;
+          newStart = parseFloat(newStart.toFixed(decimals + 1));
+        }
+        newStart = Math.max(
+          0,
+          Math.min(params.actionDuration - el.duration, newStart),
+        );
+        setElements((els) =>
+          els.map((e) => (e.id === elementId ? { ...e, start: newStart } : e)),
+        );
+      } else if (mode === "resize-right") {
+        let newDuration = originalDuration + dt;
+        if (snap > 0) {
+          newDuration = Math.round(newDuration / snap) * snap;
+          const decimals = snap.toString().split(".")[1]?.length ?? 0;
+          newDuration = parseFloat(newDuration.toFixed(decimals + 1));
+        }
+        newDuration = Math.max(
+          MIN_ELEMENT_DURATION,
+          Math.min(params.actionDuration - originalStart, newDuration),
+        );
+        setElements((els) =>
+          els.map((e) =>
+            e.id === elementId ? { ...e, duration: newDuration } : e,
+          ),
+        );
+      } else if (mode === "resize-left") {
+        let newStart = originalStart + dt;
+        let newDuration = originalDuration - dt;
+        if (snap > 0) {
+          newStart = Math.round(newStart / snap) * snap;
+          const decimals = snap.toString().split(".")[1]?.length ?? 0;
+          newStart = parseFloat(newStart.toFixed(decimals + 1));
+          newDuration = originalStart + originalDuration - newStart;
+        }
+        // Clamp: don't go before 0 or make duration too small
+        if (newStart < 0) {
+          newStart = 0;
+          newDuration = originalStart + originalDuration;
+        }
+        if (newDuration < MIN_ELEMENT_DURATION) {
+          newDuration = MIN_ELEMENT_DURATION;
+          newStart = originalStart + originalDuration - MIN_ELEMENT_DURATION;
+        }
+        setElements((els) =>
+          els.map((e) =>
+            e.id === elementId
+              ? { ...e, start: newStart, duration: newDuration }
+              : e,
+          ),
+        );
+      }
     },
     [pxPerSecond, elements, params.actionDuration, snap],
   );
@@ -231,7 +284,11 @@ export default function ActionTimeline(props: { className?: string }) {
   }, [selectedId]);
 
   return (
-    <div className={"flex flex-col gap-2 h-full min-h-0 " + (props.className ?? "")}>
+    <div
+      className={
+        "flex flex-col gap-2 h-full min-h-0 " + (props.className ?? "")
+      }
+    >
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {/* Add element buttons */}
@@ -464,7 +521,7 @@ export default function ActionTimeline(props: { className?: string }) {
                   .map((el) => (
                     <div
                       key={el.id}
-                      className={`absolute top-1 bottom-1 rounded border cursor-grab active:cursor-grabbing flex items-center px-1 text-[10px] font-medium text-white truncate transition-shadow ${ELEMENT_COLORS[el.type]} ${selectedId === el.id ? "ring-2 ring-white/60 shadow-lg" : "hover:brightness-110"}`}
+                      className={`absolute top-1 bottom-1 rounded border cursor-grab active:cursor-grabbing flex items-center px-2 text-[10px] font-medium text-white truncate transition-shadow ${ELEMENT_COLORS[el.type]} ${selectedId === el.id ? "ring-2 ring-white/60 shadow-lg" : "hover:brightness-110"}`}
                       style={{
                         left: el.start * pxPerSecond,
                         width: Math.max(
@@ -472,10 +529,22 @@ export default function ActionTimeline(props: { className?: string }) {
                           MIN_ELEMENT_DURATION * pxPerSecond,
                         ),
                       }}
-                      onPointerDown={(e) => handlePointerDown(e, el)}
+                      onPointerDown={(e) => handlePointerDown(e, el, "move")}
                       onClick={(e) => e.stopPropagation()}
                     >
+                      <div
+                        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-w-resize hover:bg-white/20 rounded-l"
+                        onPointerDown={(e) =>
+                          handlePointerDown(e, el, "resize-left")
+                        }
+                      />
                       {ELEMENT_LABELS[el.type]}
+                      <div
+                        className="absolute right-0 top-0 bottom-0 w-1.5 cursor-e-resize hover:bg-white/20 rounded-r"
+                        onPointerDown={(e) =>
+                          handlePointerDown(e, el, "resize-right")
+                        }
+                      />
                     </div>
                   ))}
               </div>
