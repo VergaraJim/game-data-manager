@@ -12,7 +12,7 @@ export default function ActionManager() {
             <FileBrowser onSelect={(path) => console.log("Selected:", path)} />
           </div>
         </div>
-        <div className="grow flex flex-col">
+        <div className="grow flex flex-col min-w-0">
           <ActionEditor />
         </div>
       </div>
@@ -25,7 +25,7 @@ function ActionEditor() {
     <div className="w-full h-full flex flex-col gap-2">
       <div className="grow min-h-0"></div>
       <p className="font-semibold text-lg">TIMELINE</p>
-      <div className="h-60">
+      <div className="h-72">
         <ActionTimeline className="w-full h-full" />
       </div>
     </div>

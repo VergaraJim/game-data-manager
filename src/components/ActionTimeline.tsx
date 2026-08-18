@@ -231,7 +231,7 @@ export default function ActionTimeline(props: { className?: string }) {
   }, [selectedId]);
 
   return (
-    <div className={"flex flex-col gap-2 " + (props.className ?? "")}>
+    <div className={"flex flex-col gap-2 h-full min-h-0 " + (props.className ?? "")}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {/* Add element buttons */}
@@ -379,7 +379,7 @@ export default function ActionTimeline(props: { className?: string }) {
       </div>
 
       {/* Timeline Area */}
-      <div className="grow overflow-auto bg-neutral-900 rounded border border-neutral-700">
+      <div className="grow min-h-0 overflow-x-auto overflow-y-auto bg-neutral-900 rounded border border-neutral-700">
         <div
           ref={timelineRef}
           className="relative select-none"
