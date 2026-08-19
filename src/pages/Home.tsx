@@ -7,10 +7,16 @@ export default function HomePage() {
       <div className="w-full h-px bg-neutral-600"></div>
       <div className="w-full grid grid-cols-3 gap-4">
         <HomeNavButton
-          label="Action"
+          label="Actions"
           count={1}
           endpoint="/action-manager"
           color="blue"
+        />
+        <HomeNavButton
+          label="Characters"
+          count={1}
+          endpoint="/character-editor"
+          color="green"
         />
         <HomeNavButton
           label="Placeholder1"
@@ -22,7 +28,7 @@ export default function HomePage() {
           label="Placeholder2"
           count={0}
           endpoint="/placeholder2"
-          color="green"
+          color="orange"
         />
       </div>
     </div>

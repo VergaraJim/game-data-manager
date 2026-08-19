@@ -3,6 +3,7 @@ import ActionManager from "./pages/ActionManager";
 import Placeholder1 from "./pages/Placeholder1";
 import Placeholder2 from "./pages/Placeholder2";
 import HomePage from "./pages/Home";
+import CharacterEditor from "./pages/CharacterEditor";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/action-manager" element={<ActionManager />} />
+          <Route path="/character-editor" element={<CharacterEditor />} />
           <Route path="/placeholder1" element={<Placeholder1 />} />
           <Route path="/placeholder2" element={<Placeholder2 />} />
         </Routes>
